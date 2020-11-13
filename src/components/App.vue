@@ -1,15 +1,20 @@
 <template>
   <div class="main-container" :style="style">
-    <Simon :steps="steps" :difficulty="difficulties[selectedDifficulty]"/>
-    <div class="options">
-      <span class="header">{{roundCaption}}</span>
-      <button @click="onStartClick">Start</button>
-      <span v-if="lostRound > 0" class="lost">{{lostCaption}}</span>
-      <div class="options__difficulty">
-        <span class="header">Difficulty:</span>
-        <div v-for="(d, i) in difficulties" :key="i" >
-          <input type="radio" :id="i" :value="i" v-model="selectedDifficulty"/>
-          <label :for="i">{{d.title}}</label>
+    <div class="content">
+      <Simon :steps="steps" :difficulty="difficulties[selectedDifficulty]"/>
+      <div class="options">
+        <div class="options__header">
+          <span class="header">{{roundCaption}}</span>
+          <button @click="onStartClick">Start</button>
+          <span class="lost">{{lostCaption}}</span>
+        </div>
+        <div class="options__difficulty">
+          <span class="header">Difficulty:</span>
+          <div v-for="(d, i) in difficulties" :key="i">
+            <input type="radio" :id="i" :value="i"
+              v-model="selectedDifficulty" :disabled="steps.length > 0"/>
+            <label :for="i">{{d.title}}</label>
+          </div>
         </div>
       </div>
     </div>
@@ -33,7 +38,9 @@ export default {
       return `Round: ${this.round}`;
     },
     lostCaption() {
-      return `Sorry, you lost after ${this.lostRound} rounds!`;
+      return this.lostRound 
+        ? `Sorry, you lost after ${this.lostRound} rounds!`
+        : '';
     }
   },
   data() {
@@ -85,60 +92,94 @@ export default {
 .main-container {
   width: 100vw;
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
 
-  .options {
-    width: 190px;
+  .content {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 
-    .header {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-
-    >button {
-      width: 50%;
-      outline: none;
-      background-color: #6DABE8;
-      border: none;
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 20px;
-      transition: background-color 0.2s ease-in-out;
-      font-size: 20px;
-
-      &:hover {
-        background-color: #78BCFC;
-      }
-    }
-
-    .lost {
-      margin-bottom: 20px;
-    }
-
-    &__difficulty {
-      width: 100%;
+    .options {
+      width: 150px;
       display: flex;
       flex-direction: column;
 
-      >div {
+      .header {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+
+      &__header {
         width: 100%;
         display: flex;
-        flex-direction: row;
-        align-items: center;
-        margin-bottom: 5px;
+        flex-direction: column;
 
-        &:last-child {
-          margin-bottom: 0px;
+        >button {
+          width: 100%;
+          outline: none;
+          background-color: #6DABE8;
+          border: none;
+          border-radius: 10px;
+          padding: 10px;
+          margin-bottom: 20px;
+          transition: background-color 0.2s ease-in-out;
+          font-size: 20px;
+
+          &:hover {
+            background-color: #78BCFC;
+          }
         }
 
-        >input {
-          margin-right: 10px;
+        .lost {
+          height: 34px;
+          margin-bottom: 20px;
+        }
+      }
+
+      &__difficulty {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+
+        >div {
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          margin-bottom: 10px;
+
+          &:last-child {
+            margin-bottom: 0px;
+          }
+
+          >input {
+            margin-right: 10px;
+          }
+        }
+      }
+    }
+  }
+}
+@media (max-width: 528px) {
+  .main-container {
+    overflow-y: scroll;
+
+    .content {
+      flex-direction: column;
+
+      .options {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        
+        >div {
+          width: 40%;
+          max-width: 150px;
         }
       }
     }

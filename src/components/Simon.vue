@@ -1,6 +1,7 @@
 <template>
   <div class="simon">
-    <div v-for="(s, i) in sectors" :key="s" class="simon__sector">
+    <div v-for="(s, i) in sectors" :key="s" 
+      class="simon__sector">
       <div :style="style(s, i)" class='sector'
         ref="sector"
         @click="!disabled && onSectorClick(i)">
@@ -10,8 +11,8 @@
 </template>
 
 <script>
-import blueSound from '../sounds/2.mp3';
-import redSound from '../sounds/1.mp3';
+import blueSound from '../sounds/1.mp3';
+import redSound from '../sounds/2.mp3';
 import yellowSound from '../sounds/3.mp3';
 import greenSound from '../sounds/4.mp3';
 
@@ -55,11 +56,10 @@ export default {
         this.disabled = true;
         let i = 0;
         this.interval = setInterval(() => {
-          try {
-            this.lightUp(steps[i]);
-            this.audios[steps[i]].play();
-            i++;
-          } catch (e) {
+          this.lightUp(steps[i]);
+          this.playAudio(steps[i]);
+          i++;
+          if (i >= steps.length) {
             clearInterval(this.interval);
             this.interval = null;
             this.disabled = false;
@@ -72,12 +72,16 @@ export default {
       this.$refs.sector[sectorIndex].classList.add("light");
       setTimeout(() => {
         this.$refs.sector[sectorIndex].classList.remove("light");
-      }, 300);
+      }, 200);
+    },
+    playAudio(audioIndex) {
+      this.audios[audioIndex].currentTime = 0;
+      this.audios[audioIndex].play();
     },
     onSectorClick(index) {
       this.clicks.push(index);
-      this.audios[index].play();
       this.lightUp(index);
+      this.playAudio(index);
       if (this.steps[this.clicks.length - 1] === index) {
         if (this.clicks.length === this.steps.length) {
           this.clicks = [];
@@ -89,7 +93,7 @@ export default {
         this.disabled = true;
         this.$parent.lostGame();
       }
-    }
+    },
   },
   data() {
     return {
@@ -123,13 +127,26 @@ export default {
   flex-direction: row;
   flex-wrap: wrap;
   margin-right: 20px;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+
+  &::after {
+    content: '';
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+    box-shadow: 0px 0px 15px -5px;
+    z-index: -1;
+  }
 
   &__sector {
     width: 50%;
     height: 50%;
     position: relative;
     overflow: hidden;
-    rotate: 180deg;
 
     .sector {
       width: 200%;
@@ -138,18 +155,37 @@ export default {
       top: 0px;
       left: 0px;
       border-radius: 50%;
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: pointer;
       border: 2px solid transparent;
       transition: all 0.2s ease-in-out;
 
       &:hover {
-        // opacity: 1;
         border-color: black;
       }
 
       &.light {
+        border-color: black;
         opacity: 1;
+      }
+    }
+  }
+}
+@media (max-width: 528px) {
+  .simon {
+    margin-right: 0px;
+    margin-bottom: 20px;
+
+    &__sector {
+      .sector {
+        &:hover {
+          border-color: transparent;
+        }
+
+        &.light {
+          border-color: black;
+          opacity: 1;
+        }
       }
     }
   }
